@@ -10,7 +10,7 @@ export function localStorageAvailable(): boolean {
     localStorage.removeItem(x);
     return true;
   }
-  catch(e) {
+  catch (e) {
     return e instanceof DOMException && (
       // everything except Firefox
       e.code === 22 ||
@@ -47,6 +47,20 @@ export class LocalStorageProxy implements IProxyStorage {
   }
 }
 
+export class SessionStorageProxy implements IProxyStorage {
+  getItem(key: string): string | null {
+    return sessionStorage.getItem(key)
+  }
+
+  setItem(key: string, value: string): void {
+    sessionStorage.setItem(key, value)
+  }
+
+  removeItem(key: string): void {
+    sessionStorage.removeItem(key)
+  }
+}
+
 export class MemoryStorageProxy implements IProxyStorage {
   private _memoryStorage = new Map<string, string>()
 
@@ -63,8 +77,6 @@ export class MemoryStorageProxy implements IProxyStorage {
   }
 }
 
-const proxyStorageFrom = (isAvailable: boolean) => isAvailable
-  ? new LocalStorageProxy()
-  : new MemoryStorageProxy()
+const proxyStorageFrom = () => new SessionStorageProxy()
 
-export const storage = proxyStorageFrom(localStorageAvailable())
+export const storage = proxyStorageFrom()
